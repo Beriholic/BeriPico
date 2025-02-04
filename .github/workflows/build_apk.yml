@@ -1,0 +1,44 @@
+name: 'APK Build'
+
+on:
+  push:
+    branches:
+      - release
+    tags:
+      - v*
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.3'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Decode key.properties file
+        run: echo $ENCODED_STRING | base64 -di > android/key.properties
+        env:
+          ENCODED_STRING: ${{ secrets.ANDROID_KEY_PROPERTIES }}
+
+      - name: Decode android-keystore.jks file
+        run: echo $ENCODED_STRING | base64 -di > android/app/release.jks
+        env:
+          ENCODED_STRING: ${{ secrets.ANDROID_KEY_STORE }}
+
+      - name: Build APK
+        run: flutter build apk --release --split-per-abi
+
+      - name: Release apk
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/app/outputs/flutter-apk/*.apk"
+
