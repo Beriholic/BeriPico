@@ -17,6 +17,7 @@ class _ApplicationState extends State<Application> {
         title: "BeriPico",
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          splashColor: Colors.transparent,
           useMaterial3: true,
         ),
         home: AdaptiveScaffold(appPages: appPages));
